@@ -1,10 +1,10 @@
 package com.muano.brainson.post;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.asm.TypeReference;
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.asm.TypeReference;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +29,8 @@ public class PostDataLoader implements CommandLineRunner {
             String POSTS_JSON = "/data/posts.json";
             log.info("Loading posts into database from JSON: {}", POSTS_JSON);
             try (InputStream inputStream = TypeReference.class.getResourceAsStream(POSTS_JSON)) {
-                Posts posts = objectMapper.readValue(inputStream, Posts.class);
-                postRepository.saveAll(posts.posts());
+                Posts response = objectMapper.readValue(inputStream, Posts.class);
+                postRepository.saveAll(response.posts());
             } catch (IOException e) {
                 throw new RuntimeException("Failed to read JSON data", e);
             }
