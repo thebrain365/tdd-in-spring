@@ -5,12 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PostController.class)
@@ -19,6 +22,9 @@ public class PostControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @MockBean
+    PostRepository postRepository;
 
     List<Post> posts = new ArrayList<>();
 
@@ -32,8 +38,33 @@ public class PostControllerTest {
 
     @Test
     public void shouldReturnAllPosts() throws Exception {
+
+        String jsonResponse = """
+                [
+                    {
+                        "id":1,
+                        "userId":1,
+                        "title":"Test post 1",
+                        "body":"Hello, World",
+                        "version": null
+                    },
+                    {
+                        "id":2,
+                        "userId":1,
+                        "title":"Test post 2",
+                        "body":"My name is Muano",
+                        "version": null
+                    }
+                ]
+                """;
+
+        when(postRepository.findAll()).thenReturn(posts);
+
         mockMvc.perform(get("/api/posts"))
-                .andExpect(status().isOk());
+                .andExpectAll(
+                        status().isOk(),
+                        content().json(jsonResponse)
+                );
     }
 }
 
