@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -136,6 +136,16 @@ public class PostControllerTest {
                     .contentType("application/json")
                     .content(jsonContent))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldDeletePostWhenGivenValidId() throws Exception {
+        doNothing().when(postRepository).deleteById(1);
+
+        mockMvc.perform(delete("/api/posts/1"))
+                .andExpect(status().isNoContent());
+
+        verify(postRepository, times(1)).deleteById(1);
     }
 }
 
