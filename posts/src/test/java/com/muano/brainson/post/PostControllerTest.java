@@ -1,5 +1,6 @@
 package com.muano.brainson.post;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,6 +28,9 @@ public class PostControllerTest {
 
     @MockBean
     PostRepository postRepository;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     List<Post> posts = new ArrayList<>();
 
@@ -92,6 +97,19 @@ public class PostControllerTest {
 
         mockMvc.perform(get("/api/posts/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldCreateNewPostWhenPostIsValid() throws Exception {
+        var newPost = new Post(3, 1, "New title", "New body", null);
+        var json = objectMapper.writeValueAsString(newPost);
+
+        when(postRepository.save(newPost)).thenReturn(newPost);
+
+        mockMvc.perform(post("/api/posts")
+                    .contentType("application/json")
+                    .content(json))
+                .andExpect(status().isCreated());
     }
 }
 
