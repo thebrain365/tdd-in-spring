@@ -25,7 +25,8 @@ class PostController {
 
     @GetMapping("/{id}")
     Optional<Post> findById(@PathVariable int id) {
-        return postRepository.findById(id);
+        return Optional.ofNullable(postRepository.findById(id)
+                .orElseThrow(PostNotFoundException::new));
     }
 }
 
