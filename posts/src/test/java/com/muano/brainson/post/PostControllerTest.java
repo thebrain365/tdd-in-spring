@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -115,14 +114,28 @@ public class PostControllerTest {
     @Test
     void shouldNotCreateNewPostWhenPostIsInvalid() throws Exception {
         var newPost = new Post(3, 1, "", "", null);
-        var json = objectMapper.writeValueAsString(newPost);
+        var jsonContent = objectMapper.writeValueAsString(newPost);
 
         when(postRepository.save(newPost)).thenReturn(newPost);
 
         mockMvc.perform(post("/api/posts")
                         .contentType("application/json")
-                        .content(json))
+                        .content(jsonContent))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldUpdatePostWhenGivenValidPost() throws Exception {
+        var updatedPost = new Post(1, 1, "Updated title", "Updated body", null);
+        var jsonContent = objectMapper.writeValueAsString(updatedPost);
+
+        when(postRepository.findById(1)).thenReturn(Optional.of(updatedPost));
+        when(postRepository.save(updatedPost)).thenReturn(updatedPost);
+
+        mockMvc.perform(put("/api/posts/1")
+                    .contentType("application/json")
+                    .content(jsonContent))
+                .andExpect(status().isOk());
     }
 }
 
