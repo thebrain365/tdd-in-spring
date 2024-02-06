@@ -111,6 +111,19 @@ public class PostControllerTest {
                     .content(json))
                 .andExpect(status().isCreated());
     }
+
+    @Test
+    void shouldNotCreateNewPostWhenPostIsInvalid() throws Exception {
+        var newPost = new Post(3, 1, "", "", null);
+        var json = objectMapper.writeValueAsString(newPost);
+
+        when(postRepository.save(newPost)).thenReturn(newPost);
+
+        mockMvc.perform(post("/api/posts")
+                        .contentType("application/json")
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
 }
 
 
