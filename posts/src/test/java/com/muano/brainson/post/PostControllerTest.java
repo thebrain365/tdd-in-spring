@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -65,6 +66,24 @@ public class PostControllerTest {
                         status().isOk(),
                         content().json(jsonResponse)
                 );
+    }
+
+    @Test
+    void shouldFindPostWhenGivenValidId() throws Exception {
+        when(postRepository.findById(1)).thenReturn(Optional.of(posts.get(0)));
+
+        String json = """
+                    {
+                        "id":1,
+                        "userId":1,
+                        "title":"Test post 1",
+                        "body":"Hello, World",
+                        "version": null
+                    }
+                """;
+
+        mockMvc.perform(get("/api/posts/1"))
+                .andExpect(status().isOk());
     }
 }
 
